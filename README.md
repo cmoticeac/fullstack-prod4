@@ -1,5 +1,5 @@
-# Producto 3
-[Añadiendo, modificando y borrando información]
+# Producto 4
+[Trabajado en tiempo real de forma colaborativa]
 > FP.066 (P) Desarrollo full stack de soluciones web con JavaScript y servicios web
 
 ## Equipo JackX
