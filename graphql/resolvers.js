@@ -1,6 +1,7 @@
 import SemestersController from "../controllers/SemestersController.js";
 import SubjectsController from "../controllers/SubjectsController.js";
 import { DateResolver } from "graphql-scalars";
+import { pubsub } from "./pubsub.js";
 
 // Resolvers define how to fetch the types defined in your schema.
 const resolvers = {
@@ -44,11 +45,20 @@ const resolvers = {
         .updateSubject(subjectData.id, subjectData);
     },
     updateSubjectStatus: async (obj, subjectData) => {
+      pubsub.publish('SUBJECT_STATUS_CHANGED', {
+        subjectStatusChanged: subjectData,
+      });
       return await SubjectsController
         .updateSubjectStatus(subjectData.id, subjectData.status);
     },
     deleteSubject: async (obj, { id }) => {
       return await SubjectsController.deleteSubject(id);
+    },
+  },
+
+  Subscription: {
+    subjectStatusChanged: {
+      subscribe: () => pubsub.asyncIterator(['SUBJECT_STATUS_CHANGED']),
     },
   },
 };

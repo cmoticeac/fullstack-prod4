@@ -49,7 +49,7 @@ function broadcast(msg) {
     // socket.emit('dimelotodo', {
     //     status: "ok", text: `<strong>${socket.id}</strong>:<br>${msg}`
     // });
-    console.log("Not using socket.io anymore");
+    console.log("Not yet implemented socket");
 }
 
 
