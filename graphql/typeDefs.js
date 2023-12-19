@@ -52,6 +52,10 @@ const typeDefs = `#graphql
     deleteSubject(
         id: ID!): Subject
   }
+
+  type Subscription {
+    subjectStatusChanged: Subject
+  }
 `;
 
 export default typeDefs;

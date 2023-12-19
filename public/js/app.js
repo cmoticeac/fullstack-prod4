@@ -46,9 +46,10 @@ function messageFlash(msg, kind = "success") {
     }, 3000);
 }
 function broadcast(msg) {
-    socket.emit('dimelotodo', {
-        status: "ok", text: `<strong>${socket.id}</strong>:<br>${msg}`
-    });
+    // socket.emit('dimelotodo', {
+    //     status: "ok", text: `<strong>${socket.id}</strong>:<br>${msg}`
+    // });
+    console.log("Not using socket.io anymore");
 }
 
 
@@ -404,14 +405,14 @@ function applyListeners() {
 }
 
 function initializeSocket() {
-    // https://socket.io/docs/v4/tutorial/introduction
-    socket = io();
+    // // https://socket.io/docs/v4/tutorial/introduction
+    // socket = io();
 
-    // Al recibir mensajes, mostrarlos
-    socket.on('dimelotodo', (msg) => {
-        console.log("Recibido:", msg);
-        messageFlash(msg.text, "info");
-    });
+    // // Al recibir mensajes, mostrarlos
+    // socket.on('dimelotodo', (msg) => {
+    //     console.log("Recibido:", msg);
+    //     messageFlash(msg.text, "info");
+    // });
 }
 
 
