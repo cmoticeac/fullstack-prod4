@@ -51,6 +51,12 @@ const resolvers = {
       return await SubjectsController.deleteSubject(id);
     },
   },
+
+  Subscription: {
+    onSubjectDraggedAndDropped: {
+      subscribe: () => pubsub.asyncIterator('SUBJECT_DRAGGED_AND_DROPPED'),
+    },
+  },
 };
 
 export default resolvers;
