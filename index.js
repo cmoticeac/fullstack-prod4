@@ -39,8 +39,7 @@ const server = new ApolloServer({
   schema,
 });
 
-// ApolloServer constructor
-
+// Websocket
 const wsServer = new WebSocketServer({
   server: httpServer,
   path: '/subscriptions',
@@ -48,7 +47,7 @@ const wsServer = new WebSocketServer({
 // Entrega el esquema al servidor WebSocket y comienza a escuchar.
 const serverCleanup = useServer({ schema }, wsServer);
 
-
+// ApolloServer constructor
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
