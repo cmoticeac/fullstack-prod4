@@ -52,6 +52,9 @@ const typeDefs = `#graphql
     deleteSubject(
         id: ID!): Subject
   }
+  type Subscription {
+    onSubjectDraggedAndDropped: Subject
+  }  
 `;
 
 export default typeDefs;
