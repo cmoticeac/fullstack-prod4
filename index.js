@@ -7,9 +7,11 @@ import 'dotenv/config';
 // Apollo imports
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
-import {
-  ApolloServerPluginDrainHttpServer
-} from '@apollo/server/plugin/drainHttpServer';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { createServer } from 'http';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/lib/use/ws';
 
 // Socket.io imports
 import { Server } from 'socket.io';
@@ -31,8 +33,22 @@ const PORT = process.env.PORT || 4000;
 const app = express();
 const httpServer = http.createServer(app);
 const ioServer = new Server(httpServer);
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+
+const server = new ApolloServer({
+  schema,
+});
 
 // ApolloServer constructor
+
+const wsServer = new WebSocketServer({
+  server: httpServer,
+  path: '/subscriptions',
+});
+// Entrega el esquema al servidor WebSocket y comienza a escuchar.
+const serverCleanup = useServer({ schema }, wsServer);
+
+
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,

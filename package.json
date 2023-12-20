@@ -21,6 +21,7 @@
   "homepage": "https://github.com/katiane-br/fullstack-prod2#readme",
   "dependencies": {
     "@apollo/server": "~4.9.5",
+    "@graphql-tools/schema": "^10.0.2",
     "apollo-server-express": "^3.13.0",
     "cors": "~2.8.5",
     "dotenv": "~16.3.1",
@@ -30,9 +31,11 @@
     "graphql-http": "~1.22.0",
     "graphql-scalars": "~1.22.4",
     "graphql-subscriptions": "^2.0.0",
+    "graphql-ws": "^5.14.2",
     "mongoose": "~8.0.0",
     "socket.io": "~4.7.2",
-    "subscriptions-transport-ws": "^0.11.0"
+    "subscriptions-transport-ws": "^0.11.0",
+    "ws": "^8.15.1"
   },
   "devDependencies": {
     "nodemon": "~3.0.1"
