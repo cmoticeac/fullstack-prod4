@@ -53,10 +53,12 @@ const resolvers = {
   },
 
   Subscription: {
-    onSubjectDraggedAndDropped: {
-      subscribe: () => pubsub.asyncIterator('SUBJECT_DRAGGED_AND_DROPPED'),
+    fileDropped: {
+      subscribe: (parent, args, { pubsub }) => {
+        return pubsub.asyncIterator('FILE_DROPPED_EVENT');
+      },
     },
   },
-};
+}
 
 export default resolvers;

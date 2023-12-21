@@ -53,7 +53,7 @@ const typeDefs = `#graphql
         id: ID!): Subject
   }
   type Subscription {
-    onSubjectDraggedAndDropped: Subject
+    fileDropped: String
   }  
 `;
 
