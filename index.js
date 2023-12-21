@@ -31,32 +31,45 @@ const PORT = process.env.PORT || 4000;
 
 // Create main app
 const app = express();
-const httpServer = http.createServer(app);
+// Crear el servidor HTTP
+const httpServer = createServer(app);
+// Crear el socket.io
 const ioServer = new Server(httpServer);
+
+// Crear un esquema GraphQL
 const schema = makeExecutableSchema({ typeDefs, resolvers });
-
-const server = new ApolloServer({
-  schema,
-});
-
-// Websocket
+// ...
 const wsServer = new WebSocketServer({
   server: httpServer,
   path: '/subscriptions',
 });
-// Entrega el esquema al servidor WebSocket y comienza a escuchar.
+
 const serverCleanup = useServer({ schema }, wsServer);
 
 // ApolloServer constructor
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  plugins: [
+    ApolloServerPluginDrainHttpServer({ httpServer }),
+
+    // Proper shutdown for the WebSocket server.
+    {
+      async serverWillStart() {
+        return {
+          async drainServer() {
+            await serverCleanup.dispose();
+          },
+        };
+      },
+    },
+  ],
 });
+
 await apolloServer.start();
 
 // Middlewares
-app.use(express.static('public'));  // Serves the static files
+app.use(express.static('public')); // Serves the static files
 dbConnection();
 app.use('/db', cors(), express.json(), expressMiddleware(apolloServer)); // DB endpoint
 app.use('/upload', fileUpload({ debug: true, uriDecodeFileNames: true }));
