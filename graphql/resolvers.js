@@ -1,6 +1,10 @@
 import SemestersController from "../controllers/SemestersController.js";
 import SubjectsController from "../controllers/SubjectsController.js";
 import { DateResolver } from "graphql-scalars";
+import { pubsub } from './pubsub.js'; 
+
+// Crear una instancia de PubSub
+const pubSub = new pubsub();
 
 // Resolvers define how to fetch the types defined in your schema.
 const resolvers = {

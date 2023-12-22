@@ -1,9 +1,12 @@
 // General imports
 import express from 'express';
 import http from 'http';
+import { SubscriptionServer } from 'subscriptions-transport-ws';
+import { execute, subscribe } from 'graphql';
 import cors from 'cors';
 import 'dotenv/config';
-
+import { pubsub } from './graphql/pubsub.js';
+ 
 // Apollo imports
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
@@ -38,6 +41,8 @@ const apolloServer = new ApolloServer({
   resolvers,
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
+
+//Iniciar Apollo Server
 await apolloServer.start();
 
 // Middlewares
@@ -46,11 +51,21 @@ dbConnection();
 app.use('/db', cors(), express.json(), expressMiddleware(apolloServer)); // DB endpoint
 app.use('/upload', fileUpload({ debug: true, uriDecodeFileNames: true }));
 
-// Socket.io
-ioServer.on('connection', socketHandler);
+// Configurar el servidor de websockets con SubscriptionServer
+SubscriptionServer.create(
+  { execute, subscribe, schema: apolloServer.schema, pubSub },
+  { server: httpServer, path: apolloServer.graphqlPath }
+);
+
 
 // Upload endpoint
 app.post('/upload', uploadHandler);
+
+// Iniciar servidor de subscriptions (WebSocket)
+SubscriptionServer.create(
+  { execute, subscribe, schema: apolloServer.schema },
+  { server: httpServer, path: apolloServer.graphqlPath }
+);
 
 // Server startup
 await new Promise(resolve => httpServer.listen({ port: PORT }, resolve));
