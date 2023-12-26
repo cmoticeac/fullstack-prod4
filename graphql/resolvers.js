@@ -51,6 +51,12 @@ const resolvers = {
       return await SubjectsController.deleteSubject(id);
     },
   },
+  
+  Subscription: {
+    somethingChanged: {
+      subscribe: () => pubsub.asyncIterator('something_changed'),
+    },
+  },
 };
 
 export default resolvers;

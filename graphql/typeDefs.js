@@ -28,6 +28,10 @@ const typeDefs = `#graphql
     subjects: [Subject]
   }
 
+  type Subscription {
+    somethingChanged: Result
+  }
+
   type Query {
     semesters: [Semester]
     getSemesterById(id: ID!): Semester

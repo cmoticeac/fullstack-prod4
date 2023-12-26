@@ -7,9 +7,11 @@ import 'dotenv/config';
 // Apollo imports
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
-import {
-  ApolloServerPluginDrainHttpServer
-} from '@apollo/server/plugin/drainHttpServer';
+import { createServer } from 'http';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/lib/use/ws';
 
 // Socket.io imports
 import { Server } from 'socket.io';
@@ -29,14 +31,46 @@ const PORT = process.env.PORT || 4000;
 
 // Create main app
 const app = express();
-const httpServer = http.createServer(app);
+// This `app` is the returned value from `express()`.
+const httpServer = createServer(app);
 const ioServer = new Server(httpServer);
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+// ...
+const server = new ApolloServer({
+  schema,
+});
+
+// Creating the WebSocket server
+const wsServer = new WebSocketServer({
+  // This is the `httpServer` we created in a previous step.
+  server: httpServer,
+  // Pass a different path here if app.use
+  // serves expressMiddleware at a different path
+  path: '/subscriptions',
+});
+
+// Hand in the schema we just created and have the
+// WebSocketServer start listening.
+const serverCleanup = useServer({ schema }, wsServer);
 
 // ApolloServer constructor
 const apolloServer = new ApolloServer({
-  typeDefs,
-  resolvers,
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  schema,
+  plugins: [
+    // Proper shutdown for the HTTP server.
+    ApolloServerPluginDrainHttpServer({ httpServer }),
+
+    // Proper shutdown for the WebSocket server.
+    {
+      async serverWillStart() {
+        return {
+          async drainServer() {
+            await serverCleanup.dispose();
+          },
+        };
+      },
+    },
+  ],
 });
 await apolloServer.start();
 
