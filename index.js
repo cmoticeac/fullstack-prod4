@@ -55,7 +55,8 @@ const serverCleanup = useServer({ schema }, wsServer);
 
 // ApolloServer constructor
 const apolloServer = new ApolloServer({
-  schema,
+  typeDefs,
+  resolvers,
   plugins: [
     // Proper shutdown for the HTTP server.
     ApolloServerPluginDrainHttpServer({ httpServer }),
