@@ -12,7 +12,7 @@ const SUSPENDIDA = 3;
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
 // Variables globales que serán necesarias en la app
-let socket, timeOutId;
+let socket, timeOutId, uid;
 
 
 
@@ -58,6 +58,12 @@ function broadcast(msg) {
  */
 function isShowing(elem) {
     return !elem.classList.contains('d-none');
+}
+/**
+ * Devuelve un identificador (bastante) único.
+ */
+function getUniqueId() {
+    return Math.random().toString(36).slice(2, 9);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -412,17 +418,26 @@ function applyListeners() {
 }
 
 async function initializeSocket() {
-    // // https://socket.io/docs/v4/tutorial/introduction
-    // socket = io();
-
-    // // Al recibir mensajes, mostrarlos
-    // socket.on('dimelotodo', (msg) => {
-    //     console.log("Recibido:", msg);
-    //     messageFlash(msg.text, "info");
-    // });
 
     // Basic WebSocket
-    socket = new WebSocket('ws://localhost:4000/subscriptions', 'graphql-transport-ws');
+    socket = new WebSocket(
+        'ws://localhost:4000/subscriptions',
+        'graphql-transport-ws'
+    );
+    // Events
+    // Based on:
+    // https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
+
+    socket.addEventListener('message', handleSocketMessage);
+    socket.addEventListener('open', function (ev) {
+        // Lanza la primera petición de conexión al websocket
+        socket.send('{"type":"connection_init"}');
+    });
+}
+
+function handleSocketMessage(ev) {
+
+    const evData = JSON.parse(ev.data);
     const query = `subscription StatusFeed {
         subjectStatusChanged {
             id
@@ -430,51 +445,35 @@ async function initializeSocket() {
             status
         }
     }`;
+    uid = getUniqueId();
 
-    // Events
-    socket.addEventListener('message', function (event) {
+    if (evData.type === "connection_ack") {
+        // Cuando el servidor reconoce la conexión, pedimos la suscripción
+        socket.send(JSON.stringify({
+            type: 'subscribe',
+            id: uid,
+            payload: { query }
+        }));
+        return;
 
-        const eventData = JSON.parse(event.data);
+    } else if (evData.type === "next") {
+        // El servidor nos envía un mensaje de la suscripción
+        console.log("Subscription", evData.payload.data.subjectStatusChanged);
+        // 1. Si no estamos viendo la página de asignaturas, no hacer nada
+        if (!isShowing(semesterPage)) { return; }
+        // 2. Extraer datos del mensaje, solo nos interesa el semId
+        const { semId } = evData.payload.data.subjectStatusChanged;
+        // 3. Si el semId no coincide con el semestre que estamos viendo,
+        // no hacer nada
+        if (semId !== semesterPage.dataset.id) { return; }
+        // 4. Si el semId coincide, actualizar la lista de asignaturas
+        refreshSubjects({ id: semId });
 
-        if (eventData.type === "connection_ack") {
-            // Cuando el servidor reconoce la conexión, pedimos la suscripción
-            // console.log('Connection established');
-            socket.send(JSON.stringify({
-                type: 'subscribe',
-                id: '1',
-                payload: { query }
-            }));
-            return;
-
-        } else if (eventData.type === "next") {
-            // El servidor nos envía un mensaje de la suscripción
-            console.log("Subscription", eventData.payload.data.subjectStatusChanged);
-            // 1. Si no estamos viendo la página de asignaturas, no hacer nada
-            if (!isShowing(semesterPage)) { return; }
-            // 2. Extraer datos del mensaje, solo nos interesa el semId
-            const { semId } = eventData.payload.data.subjectStatusChanged;
-            // 3. Si el semId no coincide con el semestre que estamos viendo,
-            // no hacer nada
-            if (semId !== semesterPage.dataset.id) { return; }
-            // 4. Si el semId coincide, actualizar la lista de asignaturas
-            refreshSubjects({ id: semId });
-
-        } else {
-            // Otros mensajes del servidor. No deberían suceder
-            console.log('Message from server ', event);
-        }
-    });
-
-    socket.addEventListener('open', function (event) {
-        // Lanza la primera petición de coneción al websocket
-        socket.send(JSON.stringify({type: 'connection_init'}));
-    });
-
-    // https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
-
+    } else {
+        // Otros mensajes del servidor. No deberían suceder
+        console.log('Message from server ', ev);
+    }
 }
-
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
