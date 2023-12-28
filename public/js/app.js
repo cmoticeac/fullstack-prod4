@@ -53,7 +53,12 @@ function broadcast(msg) {
     console.log("Sending:", msg);
     // socket.send(`<strong>${socket.id}</strong>:<br>${msg}`);
 }
-
+/**
+ * Devuelve true si el elemento está visible en la página.
+ */
+function isShowing(elem) {
+    return !elem.classList.contains('d-none');
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -416,44 +421,57 @@ async function initializeSocket() {
     //     messageFlash(msg.text, "info");
     // });
 
-    // // Basic WebSocket
-    // socket = new WebSocket('ws://localhost:4000/subscriptions');
-
-    // // Events
-    // socket.addEventListener('open', function (event) {
-    //     console.log('Connecting to server');
-    //     socket.send(`subscription
-    //         subjectStatusChanged {
-    //             id
-    //             status
-    //         }`);
-    // });
-
-    // // socket.addEventListener('message', function (event) {
-    // //     console.log('Message from server ', event.data);
-    // //     messageFlash(event.data, "info");
-    // // });
-
-
-    // Connecting using fetch() (desperate mesures...)
-    const query = `subscription {
+    // Basic WebSocket
+    socket = new WebSocket('ws://localhost:4000/subscriptions', 'graphql-transport-ws');
+    const query = `subscription StatusFeed {
         subjectStatusChanged {
             id
+            semId
             status
         }
     }`;
 
-    try {
-        const responseRaw = await fetch('/db', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query })
-        });
-        const responseJson = await responseRaw.json();
-        console.log("From DB", responseJson);
-    } catch (err) {
-        console.error(err);
-    }
+    // Events
+    socket.addEventListener('message', function (event) {
+
+        const eventData = JSON.parse(event.data);
+
+        if (eventData.type === "connection_ack") {
+            // Cuando el servidor reconoce la conexión, pedimos la suscripción
+            // console.log('Connection established');
+            socket.send(JSON.stringify({
+                type: 'subscribe',
+                id: '1',
+                payload: { query }
+            }));
+            return;
+
+        } else if (eventData.type === "next") {
+            // El servidor nos envía un mensaje de la suscripción
+            console.log("Subscription", eventData.payload.data.subjectStatusChanged);
+            // 1. Si no estamos viendo la página de asignaturas, no hacer nada
+            if (!isShowing(semesterPage)) { return; }
+            // 2. Extraer datos del mensaje, solo nos interesa el semId
+            const { semId } = eventData.payload.data.subjectStatusChanged;
+            // 3. Si el semId no coincide con el semestre que estamos viendo,
+            // no hacer nada
+            if (semId !== semesterPage.dataset.id) { return; }
+            // 4. Si el semId coincide, actualizar la lista de asignaturas
+            refreshSubjects({ id: semId });
+
+        } else {
+            // Otros mensajes del servidor. No deberían suceder
+            console.log('Message from server ', event);
+        }
+    });
+
+    socket.addEventListener('open', function (event) {
+        // Lanza la primera petición de coneción al websocket
+        socket.send(JSON.stringify({type: 'connection_init'}));
+    });
+
+    // https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
+
 }
 
 
