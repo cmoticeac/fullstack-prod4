@@ -52,6 +52,13 @@ const typeDefs = `#graphql
     deleteSubject(
         id: ID!): Subject
   }
+
+  type Subscription {
+    semesterCreated: Semester
+    subjectCreated: Subject
+  }
 `;
+// cuando se crea un nuevo semestre o una nueva asignatura, 
+// puedes publicar eventos usando pubSub y notificar a los clientes suscritos.
 
 export default typeDefs;
