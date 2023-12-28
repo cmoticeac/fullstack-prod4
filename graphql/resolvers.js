@@ -47,6 +47,7 @@ const resolvers = {
     updateSubjectStatus: async (obj, subjectData) => {
       const result = await SubjectsController
         .updateSubjectStatus(subjectData.id, subjectData.status);
+      console.log('subjectStatusChanged', subjectData);
       pubsub.publish('SUBJECT_STATUS_CHANGED', {
         subjectStatusChanged: subjectData,
       });

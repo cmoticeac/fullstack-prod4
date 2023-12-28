@@ -406,7 +406,7 @@ function applyListeners() {
     });
 }
 
-function initializeSocket() {
+async function initializeSocket() {
     // // https://socket.io/docs/v4/tutorial/introduction
     // socket = io();
 
@@ -421,17 +421,39 @@ function initializeSocket() {
 
     // // Events
     // socket.addEventListener('open', function (event) {
-    //     socket.send('Hello Server!');
+    //     console.log('Connecting to server');
+    //     socket.send(`subscription
+    //         subjectStatusChanged {
+    //             id
+    //             status
+    //         }`);
     // });
 
-    // socket.addEventListener('message', function (event) {
-    //     console.log('Message from server ', event.data);
-    //     messageFlash(event.data, "info");
-    // });
+    // // socket.addEventListener('message', function (event) {
+    // //     console.log('Message from server ', event.data);
+    // //     messageFlash(event.data, "info");
+    // // });
 
-    // Apollo Client without React
-    // https://www.apollographql.com/docs/react/migrating/apollo-client-3-migration/#using-apollo-client-without-react
 
+    // Connecting using fetch() (desperate mesures...)
+    const query = `subscription {
+        subjectStatusChanged {
+            id
+            status
+        }
+    }`;
+
+    try {
+        const responseRaw = await fetch('/db', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query })
+        });
+        const responseJson = await responseRaw.json();
+        console.log("From DB", responseJson);
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 
