@@ -31,22 +31,27 @@ const PORT = process.env.PORT || 4000;
 
 // Create main app
 const app = express();
+app.use(cors());
+
 // Crear el servidor HTTP
 const httpServer = createServer(app);
+
 // Crear el socket.io
 const ioServer = new Server(httpServer);
 
 // Crear un esquema GraphQL
 const schema = makeExecutableSchema({ typeDefs, resolvers });
-// ...
+
+// Crear el servidor WebSocket
 const wsServer = new WebSocketServer({
   server: httpServer,
   path: '/subscriptions',
 });
 
+// Inicializar el servidor WebSocket
 const serverCleanup = useServer({ schema }, wsServer);
 
-// ApolloServer constructor
+// Configurar ApolloServer
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
@@ -66,6 +71,7 @@ const apolloServer = new ApolloServer({
   ],
 });
 
+// Iniciar ApolloServer
 await apolloServer.start();
 
 // Middlewares
@@ -74,12 +80,14 @@ dbConnection();
 app.use('/db', cors(), express.json(), expressMiddleware(apolloServer)); // DB endpoint
 app.use('/upload', fileUpload({ debug: true, uriDecodeFileNames: true }));
 
-// Socket.io
+// Configurar Socket.io
 ioServer.on('connection', socketHandler);
 
-// Upload endpoint
+// Configurar el endpoint de carga
 app.post('/upload', uploadHandler);
 
-// Server startup
-await new Promise(resolve => httpServer.listen({ port: PORT }, resolve));
-console.log(`🚀 Server ready at http://localhost:${PORT}`);
+// Iniciar el servidor
+httpServer.listen(PORT, () => {
+  console.log(`🚀 Server ready at http://localhost:${PORT}`);
+  console.log(`Socket.IO server listening on port ${PORT}`);
+});

@@ -314,6 +314,8 @@ async function handleFileUpload(form) {
 /**
  * Cambia el iconito del cursor cuando se arrastra un elemento al tipo "move".
  */
+
+
 function dragover(ev) {
     ev.preventDefault();
     ev.dataTransfer.dropEffect = "move";
@@ -353,7 +355,7 @@ function dragleave(ev) {
  * - Mueve la card de la asignatura a la columna correspondiente (usando
  * appendChild)
  */
-async function dragdrop(ev) {
+async function dragdrop(ev, pubsub) {
     ev.preventDefault();
     const column = ev.currentTarget;
     this.classList.remove('dragover');
@@ -362,7 +364,12 @@ async function dragdrop(ev) {
     const id = card.dataset.id;
     const status = column.dataset.status;
 
+    // Actualiza el estado de la asignatura en la BD
     await updateSubjectStatusDB(String(id), Number(status));
+    
+    // Publica un evento GraphQL indicando que se soltó un archivo
+    pubsub.publish('FILE_DROPPED_EVENT', { fileDropped: 'Archivo soltado' });
+
     // La tarjeta se añade a un div que está dentro de la columna, por eso se
     // usa querySelector para seleccionar ese div y luego appendChild para
     // añadir la tarjeta a ese div.
@@ -391,15 +398,15 @@ function dragend(ev) {
  * Aplica los listeners de drag&drop a las columnas y la zona de "pendientes",
  * es decir, a todas las zonas que pueden recibir una asignatura arrastrada.
  */
-function applyListeners() {
+function applyListeners(pubsub) {
     // Drag&drop listeners
     // En vez de hacerlo una a una, podemos iterar por el array de zonas con
     // forEach y aplicar los listeners a cada una de ellas.
     zones.forEach(zone => {
-        zone.addEventListener('dragover', dragover);
-        zone.addEventListener('dragenter', dragenter);
-        zone.addEventListener('dragleave', dragleave);
-        zone.addEventListener('drop', dragdrop);
+        zone.addEventListener('dragover', (ev) => dragover(ev, pubsub));
+        zone.addEventListener('dragenter', (ev) => dragenter(ev, pubsub));
+        zone.addEventListener('dragleave', (ev) => dragleave(ev, pubsub));
+        zone.addEventListener('drop', (ev) => dragdrop(ev, pubsub));
     });
 }
 
@@ -664,6 +671,7 @@ async function init() {
     applyListeners();
     refreshSemesters();
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 // Todo el código anterior no hace nigún cambio en el DOM. Solo define variables
 // y constantes y también funciones.
