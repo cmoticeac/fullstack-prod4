@@ -14,7 +14,7 @@ import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
 
 // Socket.io imports
-import { Server } from 'socket.io';
+// import { Server } from 'socket.io';
 
 // Upload imports
 import fileUpload from 'express-fileupload';
@@ -23,7 +23,7 @@ import fileUpload from 'express-fileupload';
 import { dbConnection } from './config/config.js';
 import typeDefs from './graphql/typeDefs.js';
 import resolvers from './graphql/resolvers.js';
-import socketHandler from './handlers/socket.js';
+// import socketHandler from './handlers/socket.js';
 import uploadHandler from './handlers/upload.js';
 
 // Constants
@@ -33,7 +33,7 @@ const PORT = process.env.PORT || 4000;
 const app = express();
 // This `app` is the returned value from `express()`.
 const httpServer = createServer(app);
-const ioServer = new Server(httpServer);
+// const ioServer = new Server(httpServer);
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 // ...
 const server = new ApolloServer({
@@ -81,7 +81,7 @@ app.use('/db', cors(), express.json(), expressMiddleware(apolloServer)); // DB e
 app.use('/upload', fileUpload({ debug: true, uriDecodeFileNames: true }));
 
 // Socket.io
-ioServer.on('connection', socketHandler);
+// ioServer.on('connection', socketHandler);
 
 // Upload endpoint
 app.post('/upload', uploadHandler);
