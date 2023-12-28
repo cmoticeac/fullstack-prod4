@@ -29,7 +29,7 @@ const typeDefs = `#graphql
   }
 
   type Subscription {
-    somethingChanged: Result
+    somethingChanged: String
   }
 
   type Query {

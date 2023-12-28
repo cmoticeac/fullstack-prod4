@@ -44,6 +44,10 @@ const resolvers = {
         .updateSubject(subjectData.id, subjectData);
     },
     updateSubjectStatus: async (obj, subjectData) => {
+      console.log("Kat Entra", subjectData);
+      pubsub.publish('SUBJECT_STATUS_CHANGED', {
+        somethingChanged: 'something_changed',
+      });
       return await SubjectsController
         .updateSubjectStatus(subjectData.id, subjectData.status);
     },
