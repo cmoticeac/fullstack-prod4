@@ -23,7 +23,7 @@ const resolvers = {
     },
   },
 
-  Mutation:  {
+  Mutation: {
     createSemester: async (obj, semData) => {
       semData.subjects = [];
       return await SemestersController.createSemester(semData);
@@ -45,11 +45,12 @@ const resolvers = {
         .updateSubject(subjectData.id, subjectData);
     },
     updateSubjectStatus: async (obj, subjectData) => {
+      const result = await SubjectsController
+        .updateSubjectStatus(subjectData.id, subjectData.status);
       pubsub.publish('SUBJECT_STATUS_CHANGED', {
         subjectStatusChanged: subjectData,
       });
-      return await SubjectsController
-        .updateSubjectStatus(subjectData.id, subjectData.status);
+      return result;
     },
     deleteSubject: async (obj, { id }) => {
       return await SubjectsController.deleteSubject(id);

@@ -19,7 +19,7 @@ async function connectDB(body) {
         });
         const responseJson = await responseRaw.json();
         console.log("From DB", responseJson);
-        messageFlash("Conectado con la base de datos", "success");
+        // messageFlash("Conectado con la base de datos", "success");
         return responseJson.data;
 
     } catch (error) {

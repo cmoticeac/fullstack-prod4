@@ -49,7 +49,9 @@ function broadcast(msg) {
     // socket.emit('dimelotodo', {
     //     status: "ok", text: `<strong>${socket.id}</strong>:<br>${msg}`
     // });
-    console.log("Not yet implemented socket");
+    // console.log("Not yet implemented socket");
+    console.log("Sending:", msg);
+    // socket.send(`<strong>${socket.id}</strong>:<br>${msg}`);
 }
 
 
@@ -413,6 +415,23 @@ function initializeSocket() {
     //     console.log("Recibido:", msg);
     //     messageFlash(msg.text, "info");
     // });
+
+    // // Basic WebSocket
+    // socket = new WebSocket('ws://localhost:4000/subscriptions');
+
+    // // Events
+    // socket.addEventListener('open', function (event) {
+    //     socket.send('Hello Server!');
+    // });
+
+    // socket.addEventListener('message', function (event) {
+    //     console.log('Message from server ', event.data);
+    //     messageFlash(event.data, "info");
+    // });
+
+    // Apollo Client without React
+    // https://www.apollographql.com/docs/react/migrating/apollo-client-3-migration/#using-apollo-client-without-react
+
 }
 
 
