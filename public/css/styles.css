@@ -419,10 +419,6 @@ h3 {
 .bold {
     font-weight: bold;
 }
-.dragover {
-    /*  Make it glow with light */
-    box-shadow: 0 0 10px 0 #ff0000;
-}
 
 .textshadow {
     text-shadow: 1px 1px #FFFFFF, -1px 1px #FFFFFF, 1px -1px #FFFFFF, -1px -1px #FFFFFF;
@@ -478,4 +474,20 @@ h3 {
     right: 0;
     margin: 2em;
     color: black;
+}
+ 
+  /* Agrega algún estilo a los elementos arrastrables */
+.draggable {
+    width: 100px;
+    height: 50px;
+    background-color: lightblue;
+    margin: 10px;
+    cursor: wait;
+}
+  
+  /* Cambia el cursor mientras se está arrastrando */
+  .dragover {
+    /*  Make it glow with light */
+    box-shadow: 0 0 10px 0 #ff0000;
+    cursor: wait;
 }

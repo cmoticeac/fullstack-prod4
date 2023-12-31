@@ -391,6 +391,12 @@ async function dragdrop(ev) {
  */
 function dragstart(ev) {
     ev.dataTransfer.setData('text/plain', this.id);
+    isDragging = true; // El arrastre ha comenzado
+    ev.dataTransfer.setDragImage(new Image(), 0, 0);
+    ev.dataTransfer.effectAllowed = 'move';
+
+    // Cambia el cursor a una imagen personalizada o a cualquier otro valor deseado
+    this.style.cursor = 'url("../img/Logo-1.png") 0 0, move';
 }
 
 /**
