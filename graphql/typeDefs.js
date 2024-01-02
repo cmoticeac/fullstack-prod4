@@ -28,6 +28,22 @@ const typeDefs = `#graphql
     subjects: [Subject]
   }
 
+  type Activity {
+    id: ID!
+    subjectId: ID!
+    name: String!
+    descrip: String
+    due: Date!
+  }
+
+  type User {
+    id: ID!
+    name: String!
+    email: String!
+    password: String!
+    subjects: [Subject]
+  }
+
   type Query {
     semesters: [Semester]
     getSemesterById(id: ID!): Semester
