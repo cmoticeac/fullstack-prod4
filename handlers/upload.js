@@ -9,12 +9,6 @@ function uploadHandler(req, res) {
   }
 
   const subjectFile = req.files.subjectFile;
-  // const __dirname = dirname(new URL('..', import.meta.url).pathname);
-  // const __dirname = dirname(fileURLToPath(import.meta.url))
-  // console.log("THE dirname:", __dirname);
-  // const uploadURL = __dirname + 'public/upload/' + subjectFile.name;
-  // console.log("THE uploadURL:", uploadURL);
-  // const uploadPath = fileURLToPath(uploadURL);
   const uploadUrl = dirname(import.meta.url) + '/../public/upload/' + subjectFile.name;
   console.log("THE uploadUrl:", uploadUrl);
   const uploadPath = fileURLToPath(uploadUrl);
